@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>希伯来历史复习 v4.0 (大字版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        /* 自定义输入框聚焦动画 */
+        .input-highlight:focus { 
+            transform: scale(1.02); 
+            background-color: #ffffff; 
+            border-color: #4338ca; /* Indigo 700 */
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+        
+        /* 大字号下的行高优化 */
+        .question-text {
+            line-height: 2.2 !important; /* 拉大行间距，防止填空框拥挤 */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4338ca', // Indigo 700
+                        secondary: '#be185d', // Pink 700
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // -----------------------------------------------------------------------------
+        // 图标组件 (尺寸微调变大)
+        // -----------------------------------------------------------------------------
+        const Icon = ({ path, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>
+        );
+        const Icons = {
+            Home: (p) => <Icon {...p} path={<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>} />,
+            Book: (p) => <Icon {...p} path={<><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></>} />,
+            Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />,
+            RotateCcw: (p) => <Icon {...p} path={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></>} />,
+            Check: (p) => <Icon {...p} path={<polyline points="20 6 9 17 4 12"/>} />,
+            X: (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />,
+            Eye: (p) => <Icon {...p} path={<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>} />,
+            EyeOff: (p) => <Icon {...p} path={<><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"/><line x1="1" y1="1" x2="23" y2="23"/></>} />,
+            ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />,
+            AlertCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>} />,
+            ArrowLeft: (p) => <Icon {...p} path={<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>} />,
+            Award: (p) => <Icon {...p} path={<><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></>} />,
+        };
+
+        // -----------------------------------------------------------------------------
+        // 题目数据 (保持 V3.0 内容完全不变)
+        // -----------------------------------------------------------------------------
+        const rawQuestions = [
+            // ==================== 第一部分：经文背诵 ====================
+            { category: "经文背诵", question: "罗马书 15:4\n从前所写的圣经都是为{教训}我们写的，叫我们因圣经所生的忍耐和安慰可以得着盼望。" },
+            { category: "经文背诵", question: "罗马书 15:4\n从前所写的圣经都是为教训我们写的，叫我们因圣经所生的{忍耐}和{安慰}可以得着盼望。" },
+            { category: "经文背诵", question: "罗马书 15:4\n叫我们因圣经所生的忍耐和安慰可以得着{盼望}。" },
+
+            { category: "经文背诵", question: "约书亚记 1:3\n凡你们{脚掌}所踏之地，我都照着我所应许摩西的话赐给你们了。" },
+            { category: "经文背诵", question: "约书亚记 1:3\n凡你们脚掌所踏之地，我都照着我所应许{摩西}的话赐给你们了。" },
+
+            { category: "经文背诵", question: "约书亚记 4:7\n这些石头要作{以色列人}永远的纪念。" },
+            { category: "经文背诵", question: "约书亚记 4:7\n这些石头要作以色列人永远的{纪念}。" },
+
+            { category: "经文背诵", question: "约书亚记 24:15\n至于{我和我家}，我们必定事奉耶和华。" },
+            { category: "经文背诵", question: "约书亚记 24:15\n至于我和我家，我们必定{事奉耶和华}。" },
+
+            { category: "经文背诵", question: "路得记 1:16\n你的国就是{我的国}，你的神就是我的神。" },
+            { category: "经文背诵", question: "路得记 1:16\n你的国就是我的国，你的神就是{我的神}。" },
+
+            // ==================== 第二部分：历史与定义 ====================
+            { 
+                category: "历史导论", 
+                type: "list",
+                question: "学习历史的五要素：\n1. 时间\n2. 地点\n3. 人物\n4. {背景}（或事件）\n5. {意义}" 
+            },
+            { 
+                category: "名词定义", 
+                type: "list",
+                question: "希伯来人/以色列人/犹太人的区别：\n1. 希伯来人：指{闪}的后裔，特指{亚伯拉罕}及其后代；原意是「{渡河}而来的人」。\n2. 以色列人：早期指{12}个支派；现代指具有{以色列国籍}的人。\n3. 犹太人：源于{犹大}支派；国家分裂后成为{南国}的名称。" 
+            },
+
+            // ==================== 第三部分：关键人物事迹 ====================
+            { 
+                category: "亚伯拉罕", 
+                type: "list",
+                question: "亚伯拉罕主要事迹(1-4)：\n1. 被神呼召前往{迦南}。\n2. 在创世记{15}章与神立约。\n3. 与{夏甲}生以实玛利。\n4. 创世记17章被神{更名}。" 
+            },
+            { 
+                category: "亚伯拉罕", 
+                type: "list",
+                question: "亚伯拉罕主要事迹(5-7)：\n5. 为{索多玛}城代求。\n6. 以撒出生，{试验}临到。\n7. 遣仆人为{以撒}去本族娶妻。" 
+            },
+            { 
+                category: "雅各", 
+                type: "list",
+                question: "雅各主要事迹：\n1. 用一碗{红豆汤}换长子名分。\n2. 计骗{父亲}的祝福。\n3. 为拉结和利亚服事{拉班}。\n4. 在{伯特利}筑坛蒙神应许。\n5. 死后与{列祖}同葬一处。" 
+            },
+            { 
+                category: "摩西", 
+                type: "list",
+                question: "摩西主要事迹：\n1. 属{利未}支派。\n2. 在{何烈}山荆棘火焰中见神。\n3. 行了{10}灾神迹。\n4. 带领百姓过{红海}。\n5. 在{西乃}山领受十诫。\n6. 被神指示造{法柜}和{帐幕}。" 
+            },
+            { 
+                category: "约书亚", 
+                type: "list",
+                question: "约书亚其人：\n1. 名字意义：{耶和华}的救恩（与{耶稣}同义）。\n2. 属{以法莲}支派，原名{何西阿}。\n3. 在{利非订}打败亚玛力人。\n4. 曾与{迦勒}力抗十名探子的悲观论调。\n5. 享年{110}岁。" 
+            },
+
+            // ==================== 第四部分：约书亚记关键事件 ====================
+            { category: "约书亚记", question: "约书亚记大纲：\n1. 约书亚继承摩西。\n2. 打发{2}个探子窥探耶利哥。\n3. 以色列人过{约旦河}。\n4. 耶和华的{军队}准备出击。" },
+            
+            { category: "领袖传承", question: "蒙福的条件：刚强壮胆，{谨守诫命}。\n最大的鼓励：{神必同在}。" },
+
+            { 
+                category: "喇合", 
+                type: "list",
+                question: "喇合一家得救的条件：\n1. {红绳}系在窗户上\n2. {守在}家中\n3. 不可{泄露秘密}" 
+            },
+            { 
+                category: "过约旦河", 
+                type: "list", 
+                question: "过约旦河的细节：\n1. {祭司}抬起约柜在百姓前头走。\n2. 祭司的脚一入水，{水便停住}。\n3. 立12块石头：提醒后代关于神的作为，做永远的{纪念}。" 
+            },
+            { 
+                category: "吉甲", 
+                type: "list",
+                question: "吉甲发生的事：\n1. 行割礼（因新一代未行）。\n2. 吉甲意思是{滚}。\n3. 守{逾越节}。\n4. 次日吃土产，{吗哪}停止。" 
+            },
+            { 
+                category: "耶利哥", 
+                type: "list",
+                question: "征服耶利哥：\n1. 前六日每日绕城{1}次。\n2. {7}个祭司拿{7}个羊角。\n3. 第七日绕城{7}次，祭司吹角，百姓{呼喊}。" 
+            },
+            { category: "艾城", question: "因{亚干}犯罪致攻艾城失败。" },
+            
+            // --- 基利心山与以巴路山 ---
+            { category: "艾城", question: "攻取艾城后，一半人对着{基利心}山，一半对着{以巴路}山。" },
+            { 
+                category: "艾城", 
+                type: "list",
+                question: "两座山的属灵含义：\n1. 基利心山象征：{顺服神}（或顺服律法）的人，代表祝福。\n2. 以巴路山象征：{不顺服神}（或不顺服律法）的人，代表咒诅。" 
+            },
+
+            { category: "基遍", question: "以色列人被骗与{基遍}人立约，原因是：没有{求问耶和华}。" },
+
+            // ==================== 第五部分：总结与分地 ====================
+            { category: "杀王总结", question: "摩西击杀二王：亚摩利王{西宏}、巴珊王{噩}。" },
+            { category: "杀王总结", question: "约书亚击杀了{31}个王（南部16，北部15）。" },
+            { 
+                category: "分地", 
+                type: "list",
+                question: "分地概况：\n1. 约旦河{东}：流便、迦得、玛拿西半支派。\n2. 约旦河西：其余{9}个半支派。\n3. {利未}支派不分地，产业是侍奉耶和华。\n4. 会幕移到了{示罗}。" 
+            },
+            { category: "分地", question: "设立{逃城}，使误杀人的可以逃到那里。" },
+
+            // ==================== 第六部分：士师记与路得记 ====================
+            { category: "士师记", question: "基甸奉命拆毁{巴力}祭坛，因此得名{耶路巴力}。" },
+            { category: "士师记", question: "耶弗他作士师{6}年。" },
+            
+            { 
+                category: "士师记腐败", 
+                type: "list",
+                question: "信仰与道德的腐败：\n1. 米迦只有宗教形式，没有{实意}。\n2. 商业信仰：利未人求{10}舍客勒银子。\n3. 基比亚匪徒凌辱利未人的{妾}。\n4. 尸身被切成{12}块送往四境。" 
+            },
+            { category: "士师记腐败", question: "政治腐败：便雅悯支派导致{内战}，以色列人鲁莽起誓。" },
+            { category: "士师记", question: "士师记结语：那时以色列中没有{王}，各人{任意而行}。" },
+
+            { 
+                category: "路得记", 
+                type: "list",
+                question: "路得记的四个阶段：\n1. 第一章：到了波阿斯的『{城}』里。\n2. 第二章：到了波阿斯的『{田}』里。\n3. 第三章：到了波阿斯的『{场}』上。\n4. 第四章：到了波阿斯的『{家}』里。" 
+            },
+            { category: "路得记", question: "路得生子归拿俄米，其曾孙是{大卫}王。" }
+        ];
+
+        // -----------------------------------------------------------------------------
+        // 核心逻辑 (保持不变)
+        // -----------------------------------------------------------------------------
+        const shuffle = (array) => {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        };
+
+        const parseQuestion = (qStr, id) => {
+            const lines = qStr.question.split('\n');
+            const parsedLines = lines.map(line => {
+                const parts = [];
+                let lastIndex = 0;
+                const regex = /\{([^}]+)\}/g;
+                let match;
+                while ((match = regex.exec(line)) !== null) {
+                    if (match.index > lastIndex) {
+                        parts.push({ type: 'text', content: line.substring(lastIndex, match.index) });
+                    }
+                    parts.push({ type: 'input', answer: match[1] });
+                    lastIndex = regex.lastIndex;
+                }
+                if (lastIndex < line.length) {
+                    parts.push({ type: 'text', content: line.substring(lastIndex) });
+                }
+                return parts;
+            });
+            return {
+                id,
+                category: qStr.category,
+                isList: lines.length > 1 || qStr.type === 'list',
+                lines: parsedLines,
+            };
+        };
+
+        const parsedQuestions = rawQuestions.map((q, i) => parseQuestion(q, i));
+
+        // -----------------------------------------------------------------------------
+        // APP 组件
+        // -----------------------------------------------------------------------------
+        function App() {
+            const [view, setView] = React.useState('home');
+            const [questions, setQuestions] = React.useState([]);
+            const [currentIndex, setCurrentIndex] = React.useState(0);
+            const [inputs, setInputs] = React.useState({});
+            const [showResult, setShowResult] = React.useState(false);
+            const [wrongQuestionIds, setWrongQuestionIds] = React.useState(new Set());
+            const [mode, setMode] = React.useState('all'); 
+            const [stats, setStats] = React.useState({ correct: 0, total: 0 });
+            const [showHint, setShowHint] = React.useState(false);
+
+            React.useEffect(() => {
+                const savedWrong = localStorage.getItem('hebrewHistory_wrongIds_final_v4');
+                if (savedWrong) setWrongQuestionIds(new Set(JSON.parse(savedWrong)));
+            }, []);
+
+            React.useEffect(() => {
+                localStorage.setItem('hebrewHistory_wrongIds_final_v4', JSON.stringify([...wrongQuestionIds]));
+            }, [wrongQuestionIds]);
+
+            const startExam = (newMode) => {
+                setMode(newMode);
+                let qPool = newMode === 'review' ? parsedQuestions.filter(q => wrongQuestionIds.has(q.id)) : [...parsedQuestions];
+                if (newMode === 'review' && qPool.length === 0) return;
+                setQuestions(shuffle(qPool));
+                setCurrentIndex(0);
+                setInputs({});
+                setShowResult(false);
+                setShowHint(false);
+                setStats({ correct: 0, total: 0 });
+                setView('quiz');
+            };
+
+            const goHome = () => setView('home');
+            const handleInputChange = (key, value) => setInputs(prev => ({ ...prev, [key]: value }));
+
+            const isAnswerCorrect = (userVal, correctVal) => {
+                const u = (userVal || '').trim().toLowerCase();
+                const c = correctVal.trim().toLowerCase();
+                if (u === c) return true;
+                if (c.includes(u) && u.length >= 2) return true; 
+                if (u.includes(c) && u.length >= 2) return true;
+                return false;
+            };
+
+            const checkCurrentQuestion = () => {
+                return questions[currentIndex].lines.every((line, lineIdx) => 
+                    line.every((part, partIdx) => 
+                        part.type !== 'input' || isAnswerCorrect(inputs[`${lineIdx}-${partIdx}`], part.answer)
+                    )
+                );
+            };
+
+            const handleSubmit = () => {
+                const isCorrect = checkCurrentQuestion();
+                const currentQ = questions[currentIndex];
+                setStats(prev => ({ ...prev, total: prev.total + 1, correct: prev.correct + (isCorrect ? 1 : 0) }));
+                if (isCorrect) {
+                    if (wrongQuestionIds.has(currentQ.id)) {
+                        const newSet = new Set(wrongQuestionIds);
+                        newSet.delete(currentQ.id);
+                        setWrongQuestionIds(newSet);
+                    }
+                } else {
+                    setWrongQuestionIds(prev => new Set(prev).add(currentQ.id));
+                }
+                setShowResult(true);
+            };
+
+            const nextQuestion = () => {
+                if (currentIndex < questions.length - 1) {
+                    setCurrentIndex(prev => prev + 1);
+                    setInputs({});
+                    setShowResult(false);
+                    setShowHint(false);
+                    setTimeout(() => document.querySelector('input')?.focus(), 100);
+                } else {
+                    setView('result');
+                }
+            };
+
+            // --- 渲染部分 ---
+
+            if (view === 'home') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-6 animate-slide-up">
+                        <div className="w-24 h-24 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl shadow-xl flex items-center justify-center mb-6">
+                            <Icons.Book className="w-12 h-12 text-white" />
+                        </div>
+                        <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">希伯来历史</h1>
+                        <p className="text-lg text-slate-500 mb-10 text-center font-medium">全考点复习助手<br/>大字号护眼版</p>
+
+                        <div className="w-full max-w-sm space-y-4">
+                            <button onClick={() => startExam('all')} className="w-full flex items-center p-6 bg-white border-2 border-indigo-50 rounded-2xl shadow-sm active:scale-95 transition-all group">
+                                <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 mr-5 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <Icons.RotateCcw className="w-8 h-8" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-slate-900 text-xl">全题库练习</div>
+                                    <div className="text-slate-500 text-base">共 {parsedQuestions.length} 题</div>
+                                </div>
+                                <Icons.ChevronRight className="w-6 h-6 text-slate-300" />
+                            </button>
+
+                            <button onClick={() => startExam('review')} disabled={wrongQuestionIds.size === 0} 
+                                className={`w-full flex items-center p-6 border-2 rounded-2xl shadow-sm active:scale-95 transition-all group ${wrongQuestionIds.size > 0 ? 'bg-white border-pink-50 cursor-pointer' : 'bg-slate-100 border-transparent opacity-60 cursor-not-allowed'}`}>
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center mr-5 transition-colors ${wrongQuestionIds.size > 0 ? 'bg-pink-50 text-pink-600 group-hover:bg-pink-600 group-hover:text-white' : 'bg-slate-200 text-slate-400'}`}>
+                                    <Icons.AlertCircle className="w-8 h-8" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-slate-900 text-xl">复习错题本</div>
+                                    <div className="text-slate-500 text-base">{wrongQuestionIds.size > 0 ? `${wrongQuestionIds.size} 题待复习` : '暂无错题'}</div>
+                                </div>
+                                {wrongQuestionIds.size > 0 && <Icons.ChevronRight className="w-6 h-6 text-slate-300" />}
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'result') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-6 animate-slide-up">
+                        <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                            <Icons.Award className="w-12 h-12" />
+                        </div>
+                        <h2 className="text-3xl font-black text-slate-900 mb-2">练习完成!</h2>
+                        <p className="text-lg text-slate-500 mb-10 font-bold">正确率 {stats.total === 0 ? 0 : Math.round((stats.correct/stats.total)*100)}%</p>
+                        
+                        <div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-10">
+                            <div className="bg-white border-2 border-indigo-50 p-6 rounded-2xl text-center shadow-sm">
+                                <div className="text-sm font-black text-indigo-500 uppercase mb-1">答对</div>
+                                <div className="text-4xl font-black text-slate-900">{stats.correct}</div>
+                            </div>
+                            <div className="bg-white border-2 border-pink-50 p-6 rounded-2xl text-center shadow-sm">
+                                <div className="text-sm font-black text-pink-500 uppercase mb-1">错题</div>
+                                <div className="text-4xl font-black text-slate-900">{wrongQuestionIds.size}</div>
+                            </div>
+                        </div>
+
+                        <div className="w-full max-w-sm space-y-4">
+                            <button onClick={() => startExam('review')} disabled={wrongQuestionIds.size === 0} className="w-full py-5 bg-pink-700 text-white rounded-2xl text-xl font-bold disabled:opacity-50 shadow-lg shadow-pink-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                <Icons.RotateCcw className="w-6 h-6"/> 继续攻克错题
+                            </button>
+                            <button onClick={goHome} className="w-full py-5 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl text-xl font-bold hover:bg-slate-50 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                <Icons.Home className="w-6 h-6"/> 返回首页
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentQ = questions[currentIndex];
+            if (!currentQ) return <div className="min-h-screen flex items-center justify-center text-slate-400 text-xl font-bold">正在加载题库...</div>;
+
+            return (
+                <div className="flex flex-col min-h-screen bg-slate-100 pb-24 font-sans">
+                    <header className="sticky top-0 z-50 glass-header border-b border-slate-200/60 shadow-sm">
+                        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <button onClick={goHome} className="p-2 -ml-2 text-slate-500 hover:text-indigo-600 rounded-xl flex items-center gap-1 active:bg-slate-100">
+                                <Icons.ArrowLeft className="w-6 h-6"/> <span className="text-base font-bold">首页</span>
+                            </button>
+                            <div className="text-base font-bold text-slate-800">
+                                {currentIndex + 1} <span className="text-slate-300 mx-1">/</span> {questions.length}
+                            </div>
+                            <span className={`px-3 py-1 rounded-lg text-sm font-black ${mode === 'review' ? 'bg-pink-100 text-pink-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                                {mode === 'review' ? '错题' : '全题'}
+                            </span>
+                        </div>
+                        <div className="h-1.5 bg-slate-200/50 w-full"><div className="h-full bg-indigo-600 transition-all duration-300 rounded-r-full" style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}></div></div>
+                    </header>
+
+                    <main className="flex-1 max-w-2xl mx-auto w-full p-4 flex flex-col justify-center">
+                        <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden animate-slide-up">
+                            <div className="bg-slate-50/80 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">题目类型</span>
+                                <span className="text-xs font-black text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">{currentQ.category}</span>
+                            </div>
+                            <div className="p-6 sm:p-10">
+                                <div className="space-y-6">
+                                    {currentQ.lines.map((line, lIdx) => (
+                                        <div key={lIdx} className={`question-text text-xl sm:text-2xl leading-loose ${currentQ.isList && lIdx === 0 && !line.some(p => p.type === 'input') ? 'font-bold text-slate-900 border-b-2 border-slate-100 pb-4 mb-4' : 'font-semibold text-slate-700'}`}>
+                                            {line.map((part, pIdx) => {
+                                                if (part.type === 'text') return <span key={pIdx}>{part.content}</span>;
+                                                const key = `${lIdx}-${pIdx}`;
+                                                const val = inputs[key] || '';
+                                                const correct = isAnswerCorrect(val, part.answer);
+                                                if (showResult) return (
+                                                    <span key={pIdx} className={`mx-1.5 px-3 py-1 rounded-xl border-2 inline-flex items-center gap-1.5 align-middle ${correct ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800 line-through decoration-2'}`}>
+                                                        {!correct && <span className="absolute -mt-12 bg-white text-sm text-red-600 px-3 py-1 border-2 border-red-100 rounded-lg shadow-lg whitespace-nowrap z-10 font-bold transform -translate-x-1/4">你的答案: {val || '空'}</span>}
+                                                        {part.answer}
+                                                    </span>
+                                                );
+                                                return (
+                                                    <input key={pIdx} type="text" value={val} onChange={e => handleInputChange(key, e.target.value)} 
+                                                        placeholder={showHint ? part.answer : ''}
+                                                        className={`mx-1 min-w-[80px] w-[150px] h-12 text-center text-xl font-bold border-b-4 bg-indigo-50/40 focus:bg-white focus:outline-none rounded-t-lg px-2 text-indigo-900 input-highlight transition-all placeholder:text-slate-300 align-middle ${val ? 'border-indigo-500 bg-indigo-50/60' : 'border-slate-300'}`} 
+                                                        autoComplete="off" 
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    ))}
+                                </div>
+                                {showResult && (
+                                    <div className={`mt-8 p-5 rounded-2xl flex items-start gap-4 border-2 animate-slide-up ${checkCurrentQuestion() ? 'bg-green-50 border-green-100 text-green-900' : 'bg-red-50 border-red-100 text-red-900'}`}>
+                                        <div className="mt-1 shrink-0">{checkCurrentQuestion() ? <Icons.Check className="w-8 h-8"/> : <Icons.X className="w-8 h-8"/>}</div>
+                                        <div>
+                                            <div className="font-bold text-lg">{checkCurrentQuestion() ? '回答正确' : '回答错误'}</div>
+                                            <div className="text-base font-medium opacity-80 mt-1">{checkCurrentQuestion() ? '记忆非常准确！' : '正确答案已显示，已自动加入错题本。'}</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+
+                    <div className="fixed bottom-0 w-full bg-white/95 backdrop-blur border-t border-slate-200 p-4 z-40 pb-safe">
+                        <div className="max-w-2xl mx-auto flex gap-4">
+                            <button onClick={() => setShowHint(!showHint)} className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-500 hover:bg-slate-200 active:scale-95 transition-transform border-2 border-transparent hover:border-slate-300" title="偷看答案">
+                                {showHint ? <Icons.EyeOff className="w-8 h-8"/> : <Icons.Eye className="w-8 h-8"/>}
+                            </button>
+                            {showResult ? (
+                                <button onClick={nextQuestion} className="flex-1 h-16 bg-indigo-600 text-white rounded-2xl font-bold text-xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                    下一题 <Icons.ChevronRight className="w-6 h-6"/>
+                                </button>
+                            ) : (
+                                <button onClick={handleSubmit} className="flex-1 h-16 bg-slate-900 text-white rounded-2xl font-bold text-xl shadow-lg shadow-slate-300 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                    <Icons.Save className="w-6 h-6"/> 提交答案
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
