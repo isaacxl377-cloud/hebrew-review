@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>希伯来历史复习 v4.0 (大字版)</title>
+    <title>希伯来历史复习 v5.0 (全考点版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -14,30 +14,22 @@
             background-color: #f8fafc; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
         }
-        /* 自定义输入框聚焦动画 */
         .input-highlight:focus { 
             transform: scale(1.02); 
             background-color: #ffffff; 
-            border-color: #4338ca; /* Indigo 700 */
+            border-color: #4338ca; 
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
         }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
-        
-        /* 大字号下的行高优化 */
-        .question-text {
-            line-height: 2.2 !important; /* 拉大行间距，防止填空框拥挤 */
-        }
+        .question-text { line-height: 2.2 !important; }
     </style>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#4338ca', // Indigo 700
-                        secondary: '#be185d', // Pink 700
-                    }
+                    colors: { primary: '#4338ca', secondary: '#be185d' }
                 }
             }
         }
@@ -47,9 +39,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // -----------------------------------------------------------------------------
-        // 图标组件 (尺寸微调变大)
-        // -----------------------------------------------------------------------------
+        // 图标组件
         const Icon = ({ path, className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>
         );
@@ -69,124 +59,196 @@
         };
 
         // -----------------------------------------------------------------------------
-        // 题目数据 (保持 V3.0 内容完全不变)
+        // 核心题库：100% 覆盖 PPT，多角度出题
         // -----------------------------------------------------------------------------
         const rawQuestions = [
-            // ==================== 第一部分：经文背诵 ====================
+            // ==================== 1. 经文背诵 (多变体) ====================
+            // 罗马书 15:4
             { category: "经文背诵", question: "罗马书 15:4\n从前所写的圣经都是为{教训}我们写的，叫我们因圣经所生的忍耐和安慰可以得着盼望。" },
             { category: "经文背诵", question: "罗马书 15:4\n从前所写的圣经都是为教训我们写的，叫我们因圣经所生的{忍耐}和{安慰}可以得着盼望。" },
             { category: "经文背诵", question: "罗马书 15:4\n叫我们因圣经所生的忍耐和安慰可以得着{盼望}。" },
 
+            // 约书亚记 1:1-3
             { category: "经文背诵", question: "约书亚记 1:3\n凡你们{脚掌}所踏之地，我都照着我所应许摩西的话赐给你们了。" },
             { category: "经文背诵", question: "约书亚记 1:3\n凡你们脚掌所踏之地，我都照着我所应许{摩西}的话赐给你们了。" },
+            { category: "经文背诵", question: "约书亚记 1:3\n凡你们脚掌所踏之地，我都照着我所{应许}摩西的话赐给你们了。" },
 
-            { category: "经文背诵", question: "约书亚记 4:7\n这些石头要作{以色列人}永远的纪念。" },
-            { category: "经文背诵", question: "约书亚记 4:7\n这些石头要作以色列人永远的{纪念}。" },
+            // 约书亚记 4:7
+            { category: "经文背诵", question: "约书亚记 4:7\n你们就对他们说：这是因为约旦河的水在耶和华的{约柜}前断绝。" },
+            { category: "经文背诵", question: "约书亚记 4:7\n这些石头要作{以色列人}永远的{纪念}。" },
 
+            // 约书亚记 24:15
             { category: "经文背诵", question: "约书亚记 24:15\n至于{我和我家}，我们必定事奉耶和华。" },
-            { category: "经文背诵", question: "约书亚记 24:15\n至于我和我家，我们必定{事奉耶和华}。" },
+            { category: "经文背诵", question: "约书亚记 24:15\n至于我和我家，我们必定{事奉}耶和华。" },
 
-            { category: "经文背诵", question: "路得记 1:16\n你的国就是{我的国}，你的神就是我的神。" },
-            { category: "经文背诵", question: "路得记 1:16\n你的国就是我的国，你的神就是{我的神}。" },
+            // 路得记 1:16-17
+            { category: "经文背诵", question: "路得记 1:16\n不要{催逼}我回去不跟随你。" },
+            { category: "经文背诵", question: "路得记 1:16\n你的国就是{我的国}，你的神就是{我的神}。" },
+            { category: "经文背诵", question: "路得记 1:17\n你在哪里{死}，我也在那里死，也{葬}在那里。" },
 
-            // ==================== 第二部分：历史与定义 ====================
+            // ==================== 2. 历史五要素 & 民族定义 ====================
             { 
                 category: "历史导论", 
                 type: "list",
-                question: "学习历史的五要素：\n1. 时间\n2. 地点\n3. 人物\n4. {背景}（或事件）\n5. {意义}" 
+                question: "学习历史的五要素：\n1. {时间}\n2. {地点}\n3. {人物}\n4. {背景}（或事件）\n5. {意义}" 
             },
             { 
                 category: "名词定义", 
                 type: "list",
-                question: "希伯来人/以色列人/犹太人的区别：\n1. 希伯来人：指{闪}的后裔，特指{亚伯拉罕}及其后代；原意是「{渡河}而来的人」。\n2. 以色列人：早期指{12}个支派；现代指具有{以色列国籍}的人。\n3. 犹太人：源于{犹大}支派；国家分裂后成为{南国}的名称。" 
+                question: "希伯来人：\n1. 旧约中，指{闪}的后裔，特指{亚伯拉罕}及其后代。\n2. 原意是「{渡河}而来的人」，是原住民对外来者的称呼。\n3. 新约中，指说{希伯来话}的犹太人。" 
+            },
+            { 
+                category: "名词定义", 
+                type: "list",
+                question: "以色列人：\n1. 早期历史中，指以色列的{12}个支派。\n2. 源于雅各在创世记32章被神更名。\n3. 现代指具有{以色列国籍}的人。" 
+            },
+            { 
+                category: "名词定义", 
+                type: "list",
+                question: "犹太人：\n1. 词汇来源于“犹大” - 雅各的第{4}个儿子 - 犹大支派。\n2. 国家分裂后，犹大成为{南国}的名称。\n3. 犹太是希腊语-拉丁语中对“{犹大}”的拼写。" 
             },
 
-            // ==================== 第三部分：关键人物事迹 ====================
+            // ==================== 3. 亚伯拉罕 (7大事件) ====================
             { 
                 category: "亚伯拉罕", 
                 type: "list",
-                question: "亚伯拉罕主要事迹(1-4)：\n1. 被神呼召前往{迦南}。\n2. 在创世记{15}章与神立约。\n3. 与{夏甲}生以实玛利。\n4. 创世记17章被神{更名}。" 
+                question: "亚伯拉罕主要事迹 (1-3)：\n1. 被神呼召，前往{迦南}（创 12-13）。\n2. 神与亚伯拉罕立约（创 {15}）。\n3. 与{夏甲}生以实玛利（创 16）。" 
             },
             { 
                 category: "亚伯拉罕", 
                 type: "list",
-                question: "亚伯拉罕主要事迹(5-7)：\n5. 为{索多玛}城代求。\n6. 以撒出生，{试验}临到。\n7. 遣仆人为{以撒}去本族娶妻。" 
+                question: "亚伯拉罕主要事迹 (4-5)：\n4. 被神{更名}（创 17）。\n5. 为{索多玛}城代求（创 18-19）。" 
+            },
+            { 
+                category: "亚伯拉罕", 
+                type: "list",
+                question: "亚伯拉罕主要事迹 (6-7)：\n6. 以撒出生 - {试验}临到（创 21-22）。\n7. 遣仆人为{以撒}去本族娶妻（创 24）。" 
+            },
+
+            // ==================== 4. 雅各 (7大事件) ====================
+            { 
+                category: "雅各", 
+                type: "list",
+                question: "雅各主要事迹 (1-3)：\n1. 一碗{红豆汤}得长子名分（创 25）。\n2. 计骗{父亲}的祝福（创 27）。\n3. 为{拉结}和{利亚}服事拉班（创 29）。" 
             },
             { 
                 category: "雅各", 
                 type: "list",
-                question: "雅各主要事迹：\n1. 用一碗{红豆汤}换长子名分。\n2. 计骗{父亲}的祝福。\n3. 为拉结和利亚服事{拉班}。\n4. 在{伯特利}筑坛蒙神应许。\n5. 死后与{列祖}同葬一处。" 
+                question: "雅各主要事迹 (4-5)：\n4. 雅各的子女（创 29-30；35）。\n5. 雅各被{更名}（创 32）。" 
+            },
+            { 
+                category: "雅各", 
+                type: "list",
+                question: "雅各主要事迹 (6-7)：\n6. 在{伯特利}筑坛，蒙神的祝福和应许（创 35）。\n7. 与{列祖}同葬一处（创 49）。" 
+            },
+
+            // ==================== 5. 摩西 (7大事件) ====================
+            { 
+                category: "摩西", 
+                type: "list",
+                question: "摩西主要事迹 (1-3)：\n1. 属于{利未}支派，在埃及长大（出 1-2）。\n2. 神在{何烈}山荆棘火焰中向他显现（出 3）。\n3. 推脱得哥哥{亚伦}为助手（出 4）。" 
             },
             { 
                 category: "摩西", 
                 type: "list",
-                question: "摩西主要事迹：\n1. 属{利未}支派。\n2. 在{何烈}山荆棘火焰中见神。\n3. 行了{10}灾神迹。\n4. 带领百姓过{红海}。\n5. 在{西乃}山领受十诫。\n6. 被神指示造{法柜}和{帐幕}。" 
+                question: "摩西主要事迹 (4-5)：\n4. 行{10}灾的神迹（出 7-12）。\n5. 带领以色列人过{红海}（出 14）。" 
+            },
+            { 
+                category: "摩西", 
+                type: "list",
+                question: "摩西主要事迹 (6-7)：\n6. 带领以色列人到{西乃}山见神得十诫（出 19-20）。\n7. 被神指示造{法柜}和{帐幕}（出 25-40）。" 
+            },
+
+            // ==================== 6. 约书亚 (7点介绍) ====================
+            { 
+                category: "约书亚", 
+                type: "list",
+                question: "约书亚其人 (1-3)：\n1. 名字义：「{耶和华}的救恩」，与希腊文「{耶稣}」同义。\n2. 出身于{以法莲}支派，原名{何西阿}。\n3. 曾率军在{利非订}打败亚玛力人。" 
             },
             { 
                 category: "约书亚", 
                 type: "list",
-                question: "约书亚其人：\n1. 名字意义：{耶和华}的救恩（与{耶稣}同义）。\n2. 属{以法莲}支派，原名{何西阿}。\n3. 在{利非订}打败亚玛力人。\n4. 曾与{迦勒}力抗十名探子的悲观论调。\n5. 享年{110}岁。" 
+                question: "约书亚其人 (4-5)：\n4. 在{西乃}山期间，充当摩西的随从帮手。\n5. 曾与{迦勒}一起力抗十名探子的悲观论调。" 
+            },
+            { 
+                category: "约书亚", 
+                type: "list",
+                question: "约书亚其人 (6-7)：\n6. 被选为摩西的{继任人}，带领百姓征服迦南。\n7. 共活了{110}岁。" 
             },
 
-            // ==================== 第四部分：约书亚记关键事件 ====================
-            { category: "约书亚记", question: "约书亚记大纲：\n1. 约书亚继承摩西。\n2. 打发{2}个探子窥探耶利哥。\n3. 以色列人过{约旦河}。\n4. 耶和华的{军队}准备出击。" },
-            
-            { category: "领袖传承", question: "蒙福的条件：刚强壮胆，{谨守诫命}。\n最大的鼓励：{神必同在}。" },
+            // ==================== 7. 约书亚记事件 ====================
+            { category: "约书亚记", question: "大纲：\n1. 继承摩西\n2. 两个探子\n3. 过{约旦河}\n4. 耶和华的{军队}准备出击（第五章）。" },
+            { category: "领袖传承", question: "蒙福条件：刚强壮胆，{谨守诫命}。\n最大鼓励：{神必同在}。" },
 
             { 
                 category: "喇合", 
                 type: "list",
-                question: "喇合一家得救的条件：\n1. {红绳}系在窗户上\n2. {守在}家中\n3. 不可{泄露秘密}" 
+                question: "喇合一家得救的3个条件：\n1. {红绳}系在窗户上。\n2. {守在}家中。\n3. 不可{泄露秘密}。" 
             },
             { 
                 category: "过约旦河", 
                 type: "list", 
-                question: "过约旦河的细节：\n1. {祭司}抬起约柜在百姓前头走。\n2. 祭司的脚一入水，{水便停住}。\n3. 立12块石头：提醒后代关于神的作为，做永远的{纪念}。" 
+                question: "过河细节：\n1. {祭司}抬起约柜在百姓前头走。\n2. 祭司的脚一入水，{水便停住}。\n3. 立{12}块石头：作为永远的{纪念}。" 
             },
             { 
                 category: "吉甲", 
                 type: "list",
-                question: "吉甲发生的事：\n1. 行割礼（因新一代未行）。\n2. 吉甲意思是{滚}。\n3. 守{逾越节}。\n4. 次日吃土产，{吗哪}停止。" 
+                question: "吉甲的4件大事：\n1. 行割礼（因新一代未行）。\n2. 吉甲意思是{滚}。\n3. 守{逾越节}。\n4. 次日吃土产，{吗哪}停止。" 
             },
             { 
                 category: "耶利哥", 
                 type: "list",
                 question: "征服耶利哥：\n1. 前六日每日绕城{1}次。\n2. {7}个祭司拿{7}个羊角。\n3. 第七日绕城{7}次，祭司吹角，百姓{呼喊}。" 
             },
-            { category: "艾城", question: "因{亚干}犯罪致攻艾城失败。" },
+            { category: "艾城", question: "第一次攻艾城失败，因{亚干}犯罪。" },
             
-            // --- 基利心山与以巴路山 ---
-            { category: "艾城", question: "攻取艾城后，一半人对着{基利心}山，一半对着{以巴路}山。" },
+            // --- 基利心山与以巴路山 (强化版) ---
+            { 
+                category: "艾城", 
+                type: "list", 
+                question: "攻取艾城后的仪式：\n1. 一半人对着{基利心}山。\n2. 一半人对着{以巴路}山。\n3. 应验了{摩西}在申命记所说的话。" 
+            },
             { 
                 category: "艾城", 
                 type: "list",
-                question: "两座山的属灵含义：\n1. 基利心山象征：{顺服神}（或顺服律法）的人，代表祝福。\n2. 以巴路山象征：{不顺服神}（或不顺服律法）的人，代表咒诅。" 
+                question: "两座山的属灵含义：\n1. 基利心山：象征{顺服}律法的人（代表祝福）。\n2. 以巴路山：象征{不顺服}律法的人（代表咒诅）。" 
             },
 
-            { category: "基遍", question: "以色列人被骗与{基遍}人立约，原因是：没有{求问耶和华}。" },
+            { category: "基遍", question: "以色列人被骗与{基遍}人立约。\n根本原因：没有{求问耶和华}！" },
 
-            // ==================== 第五部分：总结与分地 ====================
-            { category: "杀王总结", question: "摩西击杀二王：亚摩利王{西宏}、巴珊王{噩}。" },
-            { category: "杀王总结", question: "约书亚击杀了{31}个王（南部16，北部15）。" },
+            // ==================== 8. 总结与分地 ====================
+            { category: "杀王总结", question: "摩西带领击杀二王：亚摩利王{西宏}、巴珊王{噩}。" },
+            { category: "杀王总结", question: "约书亚带领击杀了{31}个王（南部16，北部15）。" },
             { 
                 category: "分地", 
                 type: "list",
-                question: "分地概况：\n1. 约旦河{东}：流便、迦得、玛拿西半支派。\n2. 约旦河西：其余{9}个半支派。\n3. {利未}支派不分地，产业是侍奉耶和华。\n4. 会幕移到了{示罗}。" 
+                question: "分地概况：\n1. 约旦河{东}：流便、迦得、玛拿西半支派。\n2. 约旦河西：其余{9}个半支派。\n3. {利未}支派不分地，产业是侍奉耶和华。" 
             },
-            { category: "分地", question: "设立{逃城}，使误杀人的可以逃到那里。" },
+            { category: "分地", question: "会幕从吉甲移到了{示罗}。" },
+            { category: "分地", question: "设立{逃城}，使那无心而误杀人的可以逃到那里。" },
 
-            // ==================== 第六部分：士师记与路得记 ====================
-            { category: "士师记", question: "基甸奉命拆毁{巴力}祭坛，因此得名{耶路巴力}。" },
-            { category: "士师记", question: "耶弗他作士师{6}年。" },
+            // ==================== 9. 士师记 ====================
+            { category: "士师记", question: "基甸：奉命拆毁{巴力}的祭坛，因此得名{耶路巴力}。" },
+            { category: "士师记", question: "耶弗他：作士师{6}年。" },
             
             { 
                 category: "士师记腐败", 
                 type: "list",
-                question: "信仰与道德的腐败：\n1. 米迦只有宗教形式，没有{实意}。\n2. 商业信仰：利未人求{10}舍客勒银子。\n3. 基比亚匪徒凌辱利未人的{妾}。\n4. 尸身被切成{12}块送往四境。" 
+                question: "信仰的腐败：\n1. 米迦的母亲崇拜偶像（出于己意的崇拜）。\n2. 只有宗教形式（神庙、祭司），没有{实意}。\n3. 商业主义：利未人求{10}舍客勒银子、一套衣服。" 
             },
-            { category: "士师记腐败", question: "政治腐败：便雅悯支派导致{内战}，以色列人鲁莽起誓。" },
-            { category: "士师记", question: "士师记结语：那时以色列中没有{王}，各人{任意而行}。" },
+            { 
+                category: "士师记腐败", 
+                type: "list",
+                question: "道德的腐败：\n1. 利未人纳{妾}。\n2. 同性恋行为。\n3. {基比亚}匪徒凌辱其妾致死。\n4. 尸身被切成{12}块送往四境。" 
+            },
+            { 
+                category: "士师记腐败", 
+                type: "list",
+                question: "政治的腐败：\n1. 便雅悯支派态度顽梗，导致残酷{内战}。\n2. 以色列人鲁莽{起誓}（不求问神）。" 
+            },
+            { category: "士师记", question: "士师记结语：\n那时以色列中没有{王}，各人{任意而行}。" },
 
+            // ==================== 10. 路得记 ====================
             { 
                 category: "路得记", 
                 type: "list",
@@ -196,7 +258,7 @@
         ];
 
         // -----------------------------------------------------------------------------
-        // 核心逻辑 (保持不变)
+        // 逻辑部分 (Shuffle, Parse, State) - 保持稳定
         // -----------------------------------------------------------------------------
         const shuffle = (array) => {
             let currentIndex = array.length, randomIndex;
@@ -238,7 +300,7 @@
         const parsedQuestions = rawQuestions.map((q, i) => parseQuestion(q, i));
 
         // -----------------------------------------------------------------------------
-        // APP 组件
+        // React App 组件
         // -----------------------------------------------------------------------------
         function App() {
             const [view, setView] = React.useState('home');
@@ -252,12 +314,12 @@
             const [showHint, setShowHint] = React.useState(false);
 
             React.useEffect(() => {
-                const savedWrong = localStorage.getItem('hebrewHistory_wrongIds_final_v4');
+                const savedWrong = localStorage.getItem('hebrewHistory_wrongIds_final_v5');
                 if (savedWrong) setWrongQuestionIds(new Set(JSON.parse(savedWrong)));
             }, []);
 
             React.useEffect(() => {
-                localStorage.setItem('hebrewHistory_wrongIds_final_v4', JSON.stringify([...wrongQuestionIds]));
+                localStorage.setItem('hebrewHistory_wrongIds_final_v5', JSON.stringify([...wrongQuestionIds]));
             }, [wrongQuestionIds]);
 
             const startExam = (newMode) => {
@@ -279,6 +341,7 @@
             const isAnswerCorrect = (userVal, correctVal) => {
                 const u = (userVal || '').trim().toLowerCase();
                 const c = correctVal.trim().toLowerCase();
+                // 宽容模式：完全相等，或者包含关键词且长度足够
                 if (u === c) return true;
                 if (c.includes(u) && u.length >= 2) return true; 
                 if (u.includes(c) && u.length >= 2) return true;
@@ -330,7 +393,7 @@
                             <Icons.Book className="w-12 h-12 text-white" />
                         </div>
                         <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">希伯来历史</h1>
-                        <p className="text-lg text-slate-500 mb-10 text-center font-medium">全考点复习助手<br/>大字号护眼版</p>
+                        <p className="text-lg text-slate-500 mb-10 text-center font-medium">全考点复习助手<br/>v5.0 无死角版</p>
 
                         <div className="w-full max-w-sm space-y-4">
                             <button onClick={() => startExam('all')} className="w-full flex items-center p-6 bg-white border-2 border-indigo-50 rounded-2xl shadow-sm active:scale-95 transition-all group">
